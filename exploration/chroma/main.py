@@ -13,4 +13,4 @@ chroma_client = chromadb.HttpClient(host="localhost", port="8005")
 collection = chroma_client.create_collection(name=uuid4())
 collection.add(ids=[str(i) for i in range(len(changes))], documents=changes)
 
-print(collection.query(query_texts="Deadeye", n_results=1))
+print(collection.query(query_texts="Wind Ward", n_results=3))

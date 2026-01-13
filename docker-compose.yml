@@ -42,5 +42,13 @@ services:
     networks:
       - n8n_network
 
+  discord_bot:
+    build: ./src/discord_bot
+    restart: always
+    networks:
+      - n8n_network
+    env_file:
+      - .env
+
 networks:
   n8n_network:

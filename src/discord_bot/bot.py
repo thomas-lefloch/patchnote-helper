@@ -1,5 +1,7 @@
 import discord
 import os
+import requests
+import json
 
 
 class MyClient(discord.Client):
@@ -10,8 +12,13 @@ class MyClient(discord.Client):
         if message.author == self.user:
             return
 
-        await message.add_reaction("🤩")
-        await message.reply("No.")
+        res = requests.post(
+            "http://n8n:5678/webhook-test/c06245b1-90a9-4c97-be54-9efff048b38f",
+            # "http://n8n:5678/webhook/c06245b1-90a9-4c97-be54-9efff048b38f",
+            data={"message": message.content},
+        )
+        data = json.loads(res.content)
+        await message.reply(data["content"])
 
 
 intents = discord.Intents.none()
