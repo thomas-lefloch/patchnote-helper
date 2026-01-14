@@ -44,7 +44,7 @@ services:
 
   discord_bot:
     build: ./src/discord_bot
-    restart: always
+    restart: no
     networks:
       - n8n_network
     env_file:

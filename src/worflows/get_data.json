@@ -1,0 +1,333 @@
+{
+  "name": "get_data",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Patchnote reader",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "patchnote_url",
+              "placeholder": "https://url.com/forum/patchnote/1.2",
+              "requiredField": true
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -208,
+        -48
+      ],
+      "id": "0bc8ce66-6b55-406c-86d9-543e0d55b008",
+      "name": "On form submission",
+      "webhookId": "0427df9a-af62-486a-9852-bf9d2710f7e1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json[\"patchnote_url\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -16,
+        -48
+      ],
+      "id": "ad1cad4b-e091-4c89-8122-35b66062d36f",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "categories",
+              "cssSelector": "=.newsPost .content > div.lbox-container",
+              "returnValue": "attribute",
+              "attribute": "id",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {
+          "trimValues": true,
+          "cleanUpText": true
+        }
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        176,
+        -48
+      ],
+      "id": "1db3e6f8-bdc1-44bf-a633-603cc5d81d8a",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "categories",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        384,
+        -48
+      ],
+      "id": "d622abb9-c7c0-42a4-a0c8-cf6daa60381a",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "=data",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "={{ $('Split Out').item.json.categories }}",
+              "cssSelector": "=#{{ $('Split Out').item.json.categories }} li",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {
+          "trimValues": true,
+          "cleanUpText": true
+        }
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        800,
+        -48
+      ],
+      "id": "d33cda09-32a9-417b-827d-4c6dd58bd225",
+      "name": "HTML2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "72d35450-2fee-4763-8141-76271dc5d9da",
+              "name": "data",
+              "value": "={{ $('HTTP Request').item.json.data }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        592,
+        -48
+      ],
+      "id": "1a81a12b-47ae-4c4d-8446-c7bc3eb71d34",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "\nlist_of_changes = []\n\nfor item in _input.all():\n  for key, changes in item.json.items():\n    if len(changes) == 0:\n      continue\n    for change in changes:\n      change_text = f\"[{key}] {change}\"\n      print(\"text\",change_text)\n      list_of_changes.append(change_text)\n\nreturn [{\"data\": list_of_changes}]\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        -48
+      ],
+      "id": "95b4bb00-399b-4828-b5b1-562f9a478ace",
+      "name": "Code in Python (Beta)"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        1264,
+        -48
+      ],
+      "id": "c332e470-0cbd-44b2-921a-eed2b286c7f0",
+      "name": "Postgres PGVector Store"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        160
+      ],
+      "id": "a7c0881b-5e78-4baf-87d2-2033a236bf34",
+      "name": "Embeddings Ollama"
+    },
+    {
+      "parameters": {
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        1408,
+        160
+      ],
+      "id": "9cafc6fc-90c2-4a3f-beab-76bb686e1657",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        368
+      ],
+      "id": "4fec70e7-a3f6-4afc-976d-c284026b842d",
+      "name": "Token Splitter"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "HTML2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML2": {
+      "main": [
+        [
+          {
+            "node": "Code in Python (Beta)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in Python (Beta)": {
+      "main": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3ea3e372-871a-4ced-bcaf-5cb92a9bd5d8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c392fb0c04694fde57af96f751696c303e056031b28cd6e8953cef4e2729c83a"
+  },
+  "id": "qop0uz89MrBpXOUG",
+  "tags": []
+}
