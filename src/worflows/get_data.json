@@ -19,10 +19,10 @@
       "type": "n8n-nodes-base.formTrigger",
       "typeVersion": 2.3,
       "position": [
-        -208,
-        -48
+        0,
+        0
       ],
-      "id": "0bc8ce66-6b55-406c-86d9-543e0d55b008",
+      "id": "7a1474de-d8b6-4a2c-b460-09f511962b5e",
       "name": "On form submission",
       "webhookId": "0427df9a-af62-486a-9852-bf9d2710f7e1"
     },
@@ -43,10 +43,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -16,
-        -48
+        192,
+        0
       ],
-      "id": "ad1cad4b-e091-4c89-8122-35b66062d36f",
+      "id": "45aa72b5-3d3e-4672-aeb9-69396c536839",
       "name": "HTTP Request"
     },
     {
@@ -71,10 +71,10 @@
       "type": "n8n-nodes-base.html",
       "typeVersion": 1.2,
       "position": [
-        176,
-        -48
+        384,
+        0
       ],
-      "id": "1db3e6f8-bdc1-44bf-a633-603cc5d81d8a",
+      "id": "8d869496-8807-4619-815c-19a1f891cd07",
       "name": "HTML"
     },
     {
@@ -85,10 +85,10 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        384,
-        -48
+        592,
+        0
       ],
-      "id": "d622abb9-c7c0-42a4-a0c8-cf6daa60381a",
+      "id": "699c0caf-f40b-41b5-b6b0-9488f7bd13e9",
       "name": "Split Out"
     },
     {
@@ -112,10 +112,10 @@
       "type": "n8n-nodes-base.html",
       "typeVersion": 1.2,
       "position": [
-        800,
-        -48
+        1008,
+        0
       ],
-      "id": "d33cda09-32a9-417b-827d-4c6dd58bd225",
+      "id": "1165237a-3790-4a3e-9253-188da9e36064",
       "name": "HTML2"
     },
     {
@@ -135,24 +135,23 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        592,
-        -48
+        800,
+        0
       ],
-      "id": "1a81a12b-47ae-4c4d-8446-c7bc3eb71d34",
+      "id": "2e1e5c83-bbcf-470c-8802-5cc1fe49417f",
       "name": "Edit Fields1"
     },
     {
       "parameters": {
-        "language": "python",
-        "pythonCode": "\nlist_of_changes = []\n\nfor item in _input.all():\n  for key, changes in item.json.items():\n    if len(changes) == 0:\n      continue\n    for change in changes:\n      change_text = f\"[{key}] {change}\"\n      print(\"text\",change_text)\n      list_of_changes.append(change_text)\n\nreturn [{\"data\": list_of_changes}]\n"
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nlet list_of_changes = [];\n\nfor (const item of $input.all()) {\n  for (const [key, changes] of Object.entries(item.json)) {\n    if (changes.length === 0) {\n      continue;\n    }\n\n    for (const change of changes) {\n      const change_text = `[${key}] ${change}`;\n      list_of_changes.push(change_text);\n    }\n  }\n}\n\nreturn [{data: list_of_changes}]\n\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1024,
-        -48
+        1280,
+        0
       ],
-      "id": "95b4bb00-399b-4828-b5b1-562f9a478ace",
+      "id": "e6cfc88a-f629-4ac0-98ca-36b3d1a7d466",
       "name": "Code in Python (Beta)"
     },
     {
@@ -163,22 +162,36 @@
       "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
       "typeVersion": 1.3,
       "position": [
-        1264,
-        -48
+        1568,
+        0
       ],
-      "id": "c332e470-0cbd-44b2-921a-eed2b286c7f0",
-      "name": "Postgres PGVector Store"
+      "id": "816ff683-b513-4fb6-9d9d-823df8a4aa03",
+      "name": "Postgres PGVector Store",
+      "credentials": {
+        "postgres": {
+          "id": "SedJcn5tBPO4bbtr",
+          "name": "Postgres account"
+        }
+      }
     },
     {
-      "parameters": {},
+      "parameters": {
+        "model": "nomic-embed-text:latest"
+      },
       "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
       "typeVersion": 1,
       "position": [
-        1184,
-        160
+        1504,
+        208
       ],
-      "id": "a7c0881b-5e78-4baf-87d2-2033a236bf34",
-      "name": "Embeddings Ollama"
+      "id": "4995f67d-2d9e-42fe-8a70-c5b361637a9a",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "DJ6G78KgWfizZIJ0",
+          "name": "Ollama account 2"
+        }
+      }
     },
     {
       "parameters": {
@@ -188,10 +201,10 @@
       "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
       "typeVersion": 1.1,
       "position": [
-        1408,
-        160
+        1696,
+        208
       ],
-      "id": "9cafc6fc-90c2-4a3f-beab-76bb686e1657",
+      "id": "b56164c5-5032-474b-9b51-6485804affbf",
       "name": "Default Data Loader"
     },
     {
@@ -199,10 +212,10 @@
       "type": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
       "typeVersion": 1,
       "position": [
-        1504,
-        368
+        1840,
+        416
       ],
-      "id": "4fec70e7-a3f6-4afc-976d-c284026b842d",
+      "id": "0dcaa078-f340-45a8-a419-c2590a44ccf3",
       "name": "Token Splitter"
     }
   ],
@@ -321,13 +334,14 @@
   },
   "active": false,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "availableInMCP": false
   },
-  "versionId": "3ea3e372-871a-4ced-bcaf-5cb92a9bd5d8",
+  "versionId": "228bd7ed-3443-460d-9c5b-c603cdbbf51e",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "c392fb0c04694fde57af96f751696c303e056031b28cd6e8953cef4e2729c83a"
+    "instanceId": "9bf97ca5c1615c7fd87fee803b69256d63cce5448b6dccf640c451d7067c02a1"
   },
-  "id": "qop0uz89MrBpXOUG",
+  "id": "ZOfuiGFD23Pflvp52Rcq4",
   "tags": []
 }

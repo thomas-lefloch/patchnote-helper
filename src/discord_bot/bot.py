@@ -12,13 +12,9 @@ class MyClient(discord.Client):
         if message.author == self.user:
             return
 
-        res = requests.post(
-            "http://n8n:5678/webhook-test/c06245b1-90a9-4c97-be54-9efff048b38f",
-            # "http://n8n:5678/webhook/c06245b1-90a9-4c97-be54-9efff048b38f",
-            data={"message": message.content},
-        )
-        data = json.loads(res.content)
-        await message.reply(data["content"])
+        res = requests.post(os.environ["N8N_WEBHOOK_URL"], data={"message": message.content})
+        await message.reply(res.content.decode("utf-8"))
+        
 
 
 intents = discord.Intents.none()
